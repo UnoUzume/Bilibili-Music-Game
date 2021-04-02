@@ -5,6 +5,7 @@
     left: 0%;
     top: 0%;
     z-index: 10;
+    pointer-events: none;
 }
 .info-box {
     position: absolute;
@@ -14,6 +15,60 @@
     top: 5%;
     color: #fff;
 }
+.ready-button {
+    position: absolute;
+    left: 5px;
+    bottom: 40px;
+    width: 50px;
+    height: 25px;
+    color: #296cff;
+    background-color: rgb(172, 255, 190);
+    border: 2px solid rgb(76, 207, 116);
+    border-radius: 5px;
+    text-align: center;
+    z-index: 20;
+}
+.ready-button.isReady {
+    background-color: rgb(57, 218, 92);
+}
+
+.config-mask {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0%;
+    top: 0%;
+    z-index: 30;
+    display: none;
+}
+.config-panel {
+    position: absolute;
+    top: -70%;
+    left: 10%;
+    width: 80%;
+    height: 60%;
+    background-color: rgba(174, 229, 255, 0.712);
+    border: 2px solid rgb(89, 142, 255);
+    transition: all 0.5s;
+    z-index: 40;
+}
+.config-panel.in {
+    top: 20%;
+}
+.config-button {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    width: 50px;
+    height: 25px;
+    color: #296cff;
+    background-color: rgb(255, 239, 96);
+    border: 2px solid rgb(255, 191, 89);
+    border-radius: 5px;
+    text-align: center;
+    z-index: 20;
+}
+
 .line {
     position: absolute;
     left: 0px;

@@ -3,20 +3,83 @@ var bili_display = document.querySelector(".player-mobile-box .player-mobile-dis
 var game_window = document.createElement("div");
 game_window.setAttribute("id", "game-window");
 game_window.className = "game-window";
-// var player_box = document.querySelector(".player-mobile-box");
-game_window.addEventListener("touchstart", play_button_fun);
-function play_button_fun() {
-    game_window.removeEventListener("touchstart", play_button_fun);
-    timeStart = Date.now();
-    animloop();
-}
 bili_display.appendChild(game_window);
+
+var player_button = document.querySelector(".player-mobile-play-icon");
+player_button.addEventListener("touchstart", play_button_fun);
+function play_button_fun() {
+    if (isReady && notes) {
+        player_button.removeEventListener("touchstart", play_button_fun);
+        timeStart = Date.now();
+        animloop();
+    }
+}
 
 var info_box = document.createElement("div");
 info_box.setAttribute("id", "info-box");
 info_box.className = "info-box";
-info_box.innerHTML = "BMG插件已加载，点击画面开始游戏";
+info_box.innerHTML = "BMG插件已加载，点亮准备按钮再点击播放按钮开始游戏";
 game_window.appendChild(info_box);
+
+var ready_button = document.createElement("div");
+ready_button.setAttribute("id", "ready-button");
+ready_button.className = "ready-button";
+ready_button.innerText = "准备";
+ready_button.addEventListener("touchstart", function (e) {
+    if (!isReady) {
+        isReady = true;
+        ready_button.classList.add("isReady");
+        game_window.style.pointerEvents = "auto";
+    } else {
+        isReady = false;
+        ready_button.classList.remove("isReady");
+        game_window.style.pointerEvents = "none";
+    }
+});
+bili_display.appendChild(ready_button);
+
+var config_mask = document.createElement("div");
+config_mask.setAttribute("id", "config-mask");
+config_mask.className = "config-mask";
+config_mask.addEventListener("touchstart", function (e) {
+    setTimeout(function () {
+        config_mask.style.display = "none";
+    }, 400);
+    config_panel.classList.remove("in");
+});
+bili_display.appendChild(config_mask);
+
+var config_panel = document.createElement("div");
+config_panel.setAttribute("id", "config-panel");
+config_panel.className = "config-panel";
+config_panel.innerHTML =
+    '<label for=""> 谱面延时： <input type="text" name="" id="" /> </label> <br /> <label for=""> 谱面选择： <select> <option value="001">001</option> </select> </label> <br /> <label for=""> 在线加载： <input type="text" name="" id="notes-url" value="https://cdn.jsdelivr.net/gh/Flinx-LY/Bilibili-Music-Game@latest/NoteSheets/001.json" /> </label> <button>加载</button> <br /> <label for="">谱面编辑：</label> <br /> <textarea name="" id="notes-editor" cols="30" rows="5"></textarea> <br /> <button>提交修改</button>';
+config_panel.addEventListener("touchstart", function (e) {
+    game_window.classList.add("in");
+});
+bili_display.appendChild(config_panel);
+console.log(document.getElementById("notes-url").value);
+var httpRequest = new XMLHttpRequest();
+httpRequest.open("GET", document.getElementById("notes-url").value, true);
+httpRequest.send();
+httpRequest.onreadystatechange = function () {
+    if (httpRequest.readyState == 4 && httpRequest.status == 200) {
+        let json_text = httpRequest.responseText;
+        console.log(json_text);
+        document.getElementById("notes-editor").innerText = json_text;
+        notes = JSON.parse(json_text).notes;
+    }
+};
+
+var config_button = document.createElement("div");
+config_button.setAttribute("id", "config-button");
+config_button.className = "config-button";
+config_button.innerText = "设置";
+config_button.addEventListener("touchstart", function (e) {
+    config_mask.style.display = "block";
+    config_panel.classList.add("in");
+});
+bili_display.appendChild(config_button);
 
 var line = document.createElement("div");
 line.setAttribute("id", "line");
@@ -30,59 +93,8 @@ game_window.appendChild(note_box);
 
 console.log("Flinx_LY:Bilibili Music Game  已加载");
 
-var notes = [
-    [2270, 1, "50%"],
-    [3220, 1, "20%"],
-    [3850, 1, "50%"],
-    [4100, 1, "60%"],
-    [4970, 1, "70%"],
-    [5390, 1, "10%"],
-    [5850, 1, "20%"],
-    [6720, 1, "60%"],
-    [7140, 1, "70%"],
-    [7350, 1, "60%"],
-    [7600, 1, "50%"],
-    [8560, 1, "20%"],
-    [8930, 1, "60%"],
-    [9390, 1, "40%"],
-    [10310, 1, "90%"],
-    [10720, 1, "50%"],
-    [11100, 1, "70%"],
-    [12060, 1, "40%"],
-    [12470, 1, "60%"],
-    [12890, 1, "50%"],
-    [13770, 1, "70%"],
-    [14220, 1, "20%"],
-    [14680, 1, "30%"],
-    [15560, 1, "60%"],
-    [16470, 1, "20%"],
-    [18220, 1, "50%"],
-    [19970, 1, "80%"],
-    [21720, 1, "30%"],
-    [23470, 1, "90%"],
-    [25270, 1, "30%"],
-    [25680, 1, "50%"],
-    [26100, 1, "30%"],
-    [26970, 1, "70%"],
-    [28770, 1, "20%"],
-    [29680, 1, "70%"],
-    [30560, 1, "50%"],
-    [31390, 1, "60%"],
-    [31720, 1, "30%"],
-    [32270, 1, "10%"],
-    [32720, 1, "60%"],
-    [33180, 1, "40%"],
-    [33600, 1, "80%"],
-    [34100, 1, "60%"],
-    [34520, 1, "20%"],
-    [34930, 1, "30%"],
-    [35390, 1, "40%"],
-    [35890, 1, "20%"],
-    [36310, 1, "60%"],
-    [36720, 1, "50%"],
-    [37140, 1, "60%"],
-    [50000, 0, "70%"],
-];
+var isReady = false;
+var notes = null;
 var noteIndex = 0;
 
 var num_perfect = 0;
@@ -157,7 +169,6 @@ document.body.addEventListener("webkitAnimationEnd", function (e) {
         e.target.parentNode.removeChild(e.target);
     }
 });
-
 function note_del(noteNode, level) {
     const noteNode_bound = noteNode.getBoundingClientRect();
     const top = parseInt((noteNode_bound.bottom + noteNode_bound.top) / 2 - game_window.getBoundingClientRect().top);
