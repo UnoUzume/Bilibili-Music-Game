@@ -51,6 +51,7 @@
     border: 2px solid rgb(89, 142, 255);
     transition: all 0.5s;
     z-index: 40;
+    overflow: hidden;
 }
 .config-panel.in {
     top: 20%;

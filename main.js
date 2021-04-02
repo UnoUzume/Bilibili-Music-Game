@@ -120,7 +120,7 @@ function animloop() {
         if (notes[noteIndex][1] == 1) {
             var note_wrap = document.createElement("div");
             note_wrap.className = "note-wrap";
-            note_wrap.style.left = notes[noteIndex][2];
+            note_wrap.style.left = notes[noteIndex][2] + "%";
             note_wrap.addEventListener("touchstart", function (e) {
                 const noteNode_bound = e.target.getElementsByClassName("note")[0].getBoundingClientRect();
                 const note_top = (noteNode_bound.bottom + noteNode_bound.top) / 2;
