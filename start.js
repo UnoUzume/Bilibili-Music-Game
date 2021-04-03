@@ -24,7 +24,7 @@
             "https://cdn.jsdelivr.net/gh/Flinx-LY/Bilibili-Music-Game@latest/",
             "http://192.168.43.110:5500/",
         ];
-        let hostname = hostlist[1];
+        let hostname = hostlist[0];
         const lib = document.createElement("script");
         lib.src = hostname + "main.js";
         lib.defer = true;
