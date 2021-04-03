@@ -70,6 +70,9 @@ httpRequest.onreadystatechange = function () {
         let json_text = httpRequest.responseText;
         document.getElementById("notes-editor").innerText = json_text;
         notes = JSON.parse(json_text).notes;
+        notes.sort(function (a, b) {
+            return a[0] - b[0];
+        });
     }
 };
 
@@ -114,7 +117,6 @@ console.log("Flinx_LY:Bilibili Music Game  已加载");
 var isReady = false;
 var notes = null;
 var noteIndex = 0;
-
 var num_perfect = 0;
 var num_great = 0;
 var num_bad = 0;
@@ -126,7 +128,8 @@ function note_touch(e) {
     const noteNode_bound = e.target.getElementsByClassName("note")[0].getBoundingClientRect();
     // const note_top = (noteNode_bound.bottom + noteNode_bound.top) / 2;
     const note_top = (noteNode_bound.left + noteNode_bound.right) / 2;
-    const distance = line_top - note_top;
+    // const distance = line_top - note_top;
+    const distance = note_top - line_top;
     if (distance < -10) {
         note_del(e.target, 1);
         num_great++;
@@ -144,7 +147,6 @@ function note_touch(e) {
 function animloop() {
     let timenow = Date.now() - timeStart;
     var info_str = "Time: " + timenow + "<br>";
-    var info_str = "Time: " + timenow + "<br>";
 
     const line = document.querySelector("#line");
     if (line) {
@@ -155,7 +157,7 @@ function animloop() {
         line_top = 0;
     }
 
-    while (notes[noteIndex] && timenow + 2200 >= notes[noteIndex][0]) {
+    while (notes[noteIndex] && timenow + 1800 >= notes[noteIndex][0]) {
         if (notes[noteIndex][1] == 1) {
             var note_wrap = document.createElement("div");
             note_wrap.className = "note-wrap";
@@ -165,13 +167,13 @@ function animloop() {
             note.className = "note";
             note_wrap.appendChild(note);
             note_box.appendChild(note_wrap);
-            noteL = note_box.childNodes;
-            for (let index = 0; index < noteL.length; index++) {
-                const element = noteL[index];
-                element.style.zIndex = 100 - index;
-            }
         }
         noteIndex++;
+    }
+    noteL = note_box.childNodes;
+    for (let index = 0; index < noteL.length; index++) {
+        const element = noteL[index];
+        element.style.zIndex = 100 - index;
     }
     info_box.innerHTML =
         info_str +
