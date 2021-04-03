@@ -20,14 +20,19 @@
     }
     try {
         window[key] = true;
+        let hostlist = [
+            "https://cdn.jsdelivr.net/gh/Flinx-LY/Bilibili-Music-Game@latest/",
+            "http://192.168.43.110:5500/",
+        ];
+        let hostname = hostlist[1];
         const lib = document.createElement("script");
-        lib.src = "https://cdn.jsdelivr.net/gh/Flinx-LY/Bilibili-Music-Game@latest/main.js";
+        lib.src = hostname + "main.js";
         lib.defer = true;
         document.body.append(lib);
 
         var head = document.getElementsByTagName("HEAD").item(0);
         var style = document.createElement("link");
-        style.href = "https://cdn.jsdelivr.net/gh/Flinx-LY/Bilibili-Music-Game@latest/main.css";
+        style.href = hostname + "main.css";
         style.rel = "stylesheet";
         style.type = "text/css";
         head.appendChild(style);

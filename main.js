@@ -5,12 +5,16 @@ game_window.setAttribute("id", "game-window");
 game_window.className = "game-window";
 bili_display.appendChild(game_window);
 
-var player_button = document.querySelector(".player-mobile-play-icon");
+var player_button = document.querySelector(".player-mobile-pause-icon");
 player_button.addEventListener("touchstart", play_button_fun);
 function play_button_fun() {
     if (isReady && notes) {
         player_button.removeEventListener("touchstart", play_button_fun);
-        timeStart = Date.now();
+        let delay = parseInt(document.getElementById("notes-delay").value);
+        if (!delay) {
+            delay = 0;
+        }
+        timeStart = Date.now() - delay;
         animloop();
     }
 }
@@ -53,19 +57,17 @@ var config_panel = document.createElement("div");
 config_panel.setAttribute("id", "config-panel");
 config_panel.className = "config-panel";
 config_panel.innerHTML =
-    '<label for=""> 谱面延时： <input type="text" name="" id="" /> </label> <br /> <label for=""> 谱面选择： <select> <option value="001">001</option> </select> </label> <br /> <label for=""> 在线加载： <input type="text" name="" id="notes-url" value="https://cdn.jsdelivr.net/gh/Flinx-LY/Bilibili-Music-Game@latest/NoteSheets/001.json" /> </label> <button>加载</button> <br /> <label for="">谱面编辑：</label> <br /> <textarea name="" id="notes-editor" cols="30" rows="5"></textarea> <br /> <button>提交修改</button>';
+    '<label for=""> 谱面延时： <input type="number" name="" id="notes-delay" /> </label> <br /> <label for=""> 谱面选择： <select> <option value="001">001</option> </select> </label> <br /> <label for=""> 在线加载： <input type="text" name="" id="notes-url" value="https://cdn.jsdelivr.net/gh/Flinx-LY/Bilibili-Music-Game@latest/NoteSheets/001.json" /> </label> <button>加载</button> <br /> <label for="">谱面编辑：</label> <br /> <textarea name="" id="notes-editor" cols="30" rows="5"></textarea> <br /> <button>提交修改</button>';
 config_panel.addEventListener("touchstart", function (e) {
     game_window.classList.add("in");
 });
 bili_display.appendChild(config_panel);
-console.log(document.getElementById("notes-url").value);
 var httpRequest = new XMLHttpRequest();
 httpRequest.open("GET", document.getElementById("notes-url").value, true);
 httpRequest.send();
 httpRequest.onreadystatechange = function () {
     if (httpRequest.readyState == 4 && httpRequest.status == 200) {
         let json_text = httpRequest.responseText;
-        console.log(json_text);
         document.getElementById("notes-editor").innerText = json_text;
         notes = JSON.parse(json_text).notes;
     }
@@ -91,6 +93,22 @@ note_box.setAttribute("id", "note-box");
 note_box.className = "note-box";
 game_window.appendChild(note_box);
 
+game_window.addEventListener(
+    "touchmove",
+    function (e) {
+        e.preventDefault();
+    },
+    true
+);
+document
+    .querySelector(".m-video-new")
+    .insertBefore(document.querySelector(".m-video-player"), document.querySelector(".m-navbar"));
+document.querySelector(".player-mobile-btn-widescreen").style.display = "none";
+document.querySelector(".m-video-player").style.marginBottom = window.screen.height + "px";
+document.querySelector("#bilibiliPlayer").style.transform = "rotate(90deg)";
+document.querySelector("#bilibiliPlayer").style.height = document.body.clientWidth + "px";
+document.querySelector(".player-mobile").style.width = window.screen.height + "px";
+
 console.log("Flinx_LY:Bilibili Music Game  已加载");
 
 var isReady = false;
@@ -104,14 +122,35 @@ var num_miss = 0;
 var line_top = 0;
 
 var timeStart = 0;
+function note_touch(e) {
+    const noteNode_bound = e.target.getElementsByClassName("note")[0].getBoundingClientRect();
+    // const note_top = (noteNode_bound.bottom + noteNode_bound.top) / 2;
+    const note_top = (noteNode_bound.left + noteNode_bound.right) / 2;
+    const distance = line_top - note_top;
+    if (distance < -10) {
+        note_del(e.target, 1);
+        num_great++;
+    } else if (distance < 15) {
+        note_del(e.target, 0);
+        num_perfect++;
+    } else if (distance < 25) {
+        note_del(e.target, 1);
+        num_great++;
+    } else if (distance < 40) {
+        note_del(e.target, 2);
+        num_bad++;
+    }
+}
 function animloop() {
     let timenow = Date.now() - timeStart;
+    var info_str = "Time: " + timenow + "<br>";
     var info_str = "Time: " + timenow + "<br>";
 
     const line = document.querySelector("#line");
     if (line) {
         const line_bound = line.getBoundingClientRect();
-        line_top = (line_bound.bottom + line_bound.top) / 2;
+        // line_top = (line_bound.bottom + line_bound.top) / 2;
+        line_top = (line_bound.left + line_bound.right) / 2;
     } else {
         line_top = 0;
     }
@@ -121,28 +160,16 @@ function animloop() {
             var note_wrap = document.createElement("div");
             note_wrap.className = "note-wrap";
             note_wrap.style.left = notes[noteIndex][2] + "%";
-            note_wrap.addEventListener("touchstart", function (e) {
-                const noteNode_bound = e.target.getElementsByClassName("note")[0].getBoundingClientRect();
-                const note_top = (noteNode_bound.bottom + noteNode_bound.top) / 2;
-                const distance = line_top - note_top;
-                if (distance < -10) {
-                    note_del(e.target, 1);
-                    num_great++;
-                } else if (distance < 15) {
-                    note_del(e.target, 0);
-                    num_perfect++;
-                } else if (distance < 25) {
-                    note_del(e.target, 1);
-                    num_great++;
-                } else if (distance < 40) {
-                    note_del(e.target, 2);
-                    num_bad++;
-                }
-            });
+            note_wrap.addEventListener("touchstart", note_touch);
             var note = document.createElement("div");
             note.className = "note";
             note_wrap.appendChild(note);
             note_box.appendChild(note_wrap);
+            noteL = note_box.childNodes;
+            for (let index = 0; index < noteL.length; index++) {
+                const element = noteL[index];
+                element.style.zIndex = 100 - index;
+            }
         }
         noteIndex++;
     }
@@ -157,26 +184,29 @@ function animloop() {
         "<br>Miss:   " +
         num_miss +
         "<br><br>";
+
     if (notes[noteIndex]) {
         requestAnimationFrame(animloop);
     }
 }
 document.body.addEventListener("webkitAnimationEnd", function (e) {
-    if (e.target.className == "note-wrap") {
-        note_del(e.target, 3);
+    if (e.target.className == "note") {
+        note_del(e.target.parentNode, 3);
         num_miss++;
     } else {
         e.target.parentNode.removeChild(e.target);
     }
 });
 function note_del(noteNode, level) {
-    const noteNode_bound = noteNode.getBoundingClientRect();
+    const noteNode_bound = noteNode.firstChild.getBoundingClientRect();
     const top = parseInt((noteNode_bound.bottom + noteNode_bound.top) / 2 - game_window.getBoundingClientRect().top);
-    const left = parseInt((noteNode_bound.right + noteNode_bound.left) / 2 - game_window.getBoundingClientRect().left);
+    // const left = parseInt((noteNode_bound.right + noteNode_bound.left) / 2 - game_window.getBoundingClientRect().left);
+    const right = parseInt(
+        game_window.getBoundingClientRect().right - (noteNode_bound.right + noteNode_bound.left) / 2
+    );
     var elem = document.createElement("div");
-    elem.style.left = left + "px";
-    elem.style.top = top + "px";
-    elem.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1"><rect width="20" height="20"></rect></svg>';
+    elem.style.left = top + "px";
+    elem.style.top = right + "px";
     elem.classList.add("note-hide");
     elem.classList.add("note-hide" + level);
     game_window.appendChild(elem);
